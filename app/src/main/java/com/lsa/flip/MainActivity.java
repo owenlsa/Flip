@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private float rotateZ = 0;
     private float lightGRADIENT = 3;
     private float rotateSTRENGTH = 7;
-    private int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         lightLx = 0;
         lightLx_Last = 0;
         lightLx_Low = 0;
-        upDown = 0; // 1是暗了，0是亮
-        isRotate = 0; // 1是转了，0是没
+        upDown = 0;
+        isRotate = 0;
         rotateX = 0;
         rotateY = 0;
         rotateZ = 0;
@@ -152,15 +150,17 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void writeLog(View view) {
-            String filename = "FlipLog.txt";
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");// HH:mm:ss
-            //获取当前时间
-            Date curTime = new Date(System.currentTimeMillis());
-            String timeData = simpleDateFormat.format(curTime);
 
-            String context ="Created time: " + timeData + "\n" + tvOutput1.getText();
-            WriteSDFile(context,filename);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");// HH:mm:ss
+
+        //获取当前时间
+        Date curTime = new Date(System.currentTimeMillis());
+        String timeData = simpleDateFormat.format(curTime);
+
+        String context ="Created time: " + timeData + "\n" + tvOutput1.getText();
+        String filename = "FlipLog.txt";
+        WriteSDFile(context,filename);
 
     }
 
