@@ -1,19 +1,13 @@
 package com.lsa.flip;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -99,11 +93,13 @@ public class MainActivity extends AppCompatActivity {
                 rotateY = event.values[1];
                 rotateZ = event.values[2];
                 tvOutput2.setText("\nrotationTimes: " + rotationTimes);
-                if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2)) > rotateSTRENGTH && isRotate == 0) {
+                if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2))
+                        > rotateSTRENGTH && isRotate == 0) {
                     isRotate = 1;
 
                 }
-                if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2)) < rotateSTRENGTH &&  isRotate == 1) {
+                if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2))
+                        < rotateSTRENGTH &&  isRotate == 1) {
                     rotationHold = rotationHold + 1;
                     if (rotationHold > 15) {
                         rotationHold = 0;
@@ -117,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (event.sensor.getType() == Sensor.TYPE_LIGHT) { //这是光纤传感器的event
                     lightLx = event.values[0]; //获取光线强度
-                    if (lightLx_Last - lightLx >= lightGRADIENT && lightLx_Last != 0 && isRotate == 1) {
+                    if (lightLx_Last - lightLx >= lightGRADIENT && lightLx_Last != 0
+                            && isRotate == 1) {
                         //亮度下降将upDown置为1
                         lightLx_Low = lightLx;
                         lightGRADIENT = (float) (lightLx_Last*0.1);
@@ -150,9 +147,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void writeLog(View view) {
-
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");// HH:mm:ss
+        //定义时间格式
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");
 
         //获取当前时间
         Date curTime = new Date(System.currentTimeMillis());
@@ -170,9 +166,11 @@ public class MainActivity extends AppCompatActivity {
 //                Manifest.permission.WRITE_EXTERNAL_STORAGE)
 //                != PackageManager.PERMISSION_GRANTED) {
 //            //Permissions not granted
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+//            ActivityCompat.requestPermissions(this,
+//            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
 //                    MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//            ActivityCompat.requestPermissions(this,
+//            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
 //                    MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
 //
 //                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -183,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
 //            // Permission has already been granted
 //            String filename = "FlipLog.txt";
 //
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");// HH:mm:ss
+//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");
 //            //获取当前时间
 //            Date curTime = new Date(System.currentTimeMillis());
 //            String timeData = simpleDateFormat.format(curTime);
@@ -205,14 +203,15 @@ public class MainActivity extends AppCompatActivity {
             }
             File newFile = new File(sdPath, filename);
             if (newFile.createNewFile()) {
-                //Toast.makeText(this, "File created:" + newFile.getName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "File created:", Toast.LENGTH_SHORT).show();
             } else{
                 //Toast.makeText(this,"File already exists",Toast.LENGTH_SHORT).show();
             }
             FileOutputStream outStream = new FileOutputStream(newFile);
             outStream.write(context.getBytes());
             outStream.close();
-            Toast.makeText(this, sdPath + newFile.getName() + " created.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, sdPath + newFile.getName()
+                    + " created.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(this,"Oops",Toast.LENGTH_SHORT).show();
             e.printStackTrace();
