@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvOutput2;
     private TextView tvOutTimes;
     private SensorManager sensorManager;
-    private Sensor lightSensor;
+    private Sensor gameSensor;
     private Sensor gyroscopeSensor;
     private int rotationTimes = 0;
     private int flipTimes = 0;
@@ -51,11 +51,11 @@ public class MainActivity extends AppCompatActivity {
 
         //获取SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        gameSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         sensorManager.registerListener(sensorListener, gyroscopeSensor, 300);
-        sensorManager.registerListener(sensorListener, lightSensor,300);
+        sensorManager.registerListener(sensorListener, gameSensor,300);
         }
 
     protected void onDestroy() {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            if (event.sensor.getType() == Sensor.TYPE_LIGHT) { //这是光纤传感器的event
+            if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) { //这是游戏传感器的event
                     lightLx = event.values[0]; //获取光线强度
                     if (lightLx_Last - lightLx >= lightGRADIENT && lightLx_Last != 0
                             && isRotate == 1) {
