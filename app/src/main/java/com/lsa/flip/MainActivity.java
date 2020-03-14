@@ -2,6 +2,7 @@ package com.lsa.flip;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -28,9 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private int rotationTimes = 0;
     private int flipTimes = 0;
     private int rotationHold = 0;
-    private float lightLx = 0;
-    private float lightLx_Last = 0;
-    private float lightLx_Low = 0;
+    private float gameX = 0;
+    private float gameY = 0;
+    private float gameZ = 0;
     private int upDown = 0; // 1是暗了，0是亮
     private int isRotate = 0; // 1是转了，0是没
     private float rotateX = 0;
@@ -67,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
         rotationTimes = 0;
         flipTimes = 0;
         rotationHold = 0;
-        lightLx = 0;
-        lightLx_Last = 0;
-        lightLx_Low = 0;
+        gameX = 0;
+        gameY = 0;
+        gameZ = 0;
         upDown = 0;
         isRotate = 0;
         rotateX = 0;
@@ -77,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
         rotateZ = 0;
         lightGRADIENT = 3;
         rotateSTRENGTH = 7;
-        tvOutput1.setText("light: " + lightLx + "\nlightDarkTriger: " + lightLx_Low
-                + "\nupDown: " + upDown + "\nGRADITENT: " + lightGRADIENT);
         tvOutput2.setText("\nrotationTimes: " + rotationTimes);
         tvOutTimes.setText("Flip Times\n" + flipTimes);
 
@@ -86,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     //监听器
     private SensorEventListener sensorListener = new SensorEventListener() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) { //这是陀螺仪的event
@@ -112,29 +112,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) { //这是游戏传感器的event
-                    lightLx = event.values[0]; //获取光线强度
-                    if (lightLx_Last - lightLx >= lightGRADIENT && lightLx_Last != 0
-                            && isRotate == 1) {
-                        //亮度下降将upDown置为1
-                        lightLx_Low = lightLx;
-                        lightGRADIENT = (float) (lightLx_Last*0.1);
-                        if (lightGRADIENT > 50) {
-                            lightGRADIENT = 50;
-                        }
-                        upDown = 1;
-                    }
-                    if (lightLx - lightLx_Low > lightGRADIENT && lightLx_Low != 0) {
-                        //亮度上升将upDown归0，同时增加times次数
-                        if (upDown == 1) {
-                            flipTimes = flipTimes + 1;
-                            upDown = 0;
-                        }
-                    }
-                    tvOutput1.setText("light: " + lightLx + "\nlightDarkTriger: " + lightLx_Low
-                            + "\nupDown: " + upDown + "\nGRADITENT: " + lightGRADIENT);
-                    tvOutTimes.setText("Flip Times\n" + flipTimes);
-                    lightLx_Last = lightLx;
-                }
+                gameX = (float) Math.asin(event.values[0])*2;
+                gameY = (float) Math.asin(event.values[1])*2;
+                gameZ = (float) Math.asin(event.values[2])*2;
+                tvOutput1.setText("gameX: " + Math.toDegrees(gameX) + "\ngameY: "
+                        + Math.toDegrees(gameY) + "\ngameZ: " +  Math.toDegrees(gameZ));
+
+            }
 
 
 
@@ -159,38 +143,6 @@ public class MainActivity extends AppCompatActivity {
         WriteSDFile(context,filename);
 
     }
-
-//输出到外部sd卡的函数，不用了这个
-//    public void writeLog(View view) {
-//        if (ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            //Permissions not granted
-//            ActivityCompat.requestPermissions(this,
-//            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-//                    MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
-//            ActivityCompat.requestPermissions(this,
-//            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
-//
-//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                // app-defined int constant. The callback method gets the
-//                // result of the request.
-//
-//        } else {
-//            // Permission has already been granted
-//            String filename = "FlipLog.txt";
-//
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd. HH:mm:ss");
-//            //获取当前时间
-//            Date curTime = new Date(System.currentTimeMillis());
-//            String timeData = simpleDateFormat.format(curTime);
-//
-//            String context ="Created time: " + timeData + "\n" + tvOutput1.getText();
-////            String context = "test";
-//            WriteSDFile(context,filename);
-//        }
-//    }
 
     public void WriteSDFile(String context, String filename) {
 
