@@ -29,16 +29,16 @@ public class MainActivity extends AppCompatActivity {
     private int rotationTimes = 0;
     private int flipTimes = 0;
     private int rotationHold = 0;
-    private float gameX = 0;
-    private float gameY = 0;
-    private float gameZ = 0;
-    private int upDown = 0; // 1是暗了，0是亮
+    private float lastRotateStrength = 0;
+    private float[] gameVal_START = new float[4];
     private int isRotate = 0; // 1是转了，0是没
+    private int beRotating = 0;// 1是已触发开始计算角度
+    private int halfRotate = 0;// 1是转了半圈
     private float rotateX = 0;
     private float rotateY = 0;
     private float rotateZ = 0;
-    private float lightGRADIENT = 3;
-    private float rotateSTRENGTH = 7;
+    private static float rotateSTRENGTH = 2;
+    private static float ROTATE_ANGLE_THRESHOLD = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
         gameSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-        sensorManager.registerListener(sensorListener, gyroscopeSensor, 300);
-        sensorManager.registerListener(sensorListener, gameSensor,300);
+        sensorManager.registerListener(sensorListener, gyroscopeSensor, sensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(sensorListener, gameSensor,sensorManager.SENSOR_DELAY_NORMAL);
         }
 
     protected void onDestroy() {
@@ -68,17 +68,14 @@ public class MainActivity extends AppCompatActivity {
         rotationTimes = 0;
         flipTimes = 0;
         rotationHold = 0;
-        gameX = 0;
-        gameY = 0;
-        gameZ = 0;
-        upDown = 0;
-        isRotate = 0;
+        lastRotateStrength = 0;
+        isRotate = 0; // 1是转了，0是没
+        beRotating = 0;// 1是已触发开始计算角度
+        halfRotate = 0;// 1是转了半圈
         rotateX = 0;
         rotateY = 0;
         rotateZ = 0;
-        lightGRADIENT = 3;
-        rotateSTRENGTH = 7;
-        tvOutput2.setText("\nrotationTimes: " + rotationTimes);
+        tvOutput2.setText("");
         tvOutTimes.setText("Flip Times\n" + flipTimes);
 
     }
@@ -92,19 +89,23 @@ public class MainActivity extends AppCompatActivity {
                 rotateX = event.values[0];
                 rotateY = event.values[1];
                 rotateZ = event.values[2];
-                tvOutput2.setText("\nrotationTimes: " + rotationTimes);
+                //tvOutput2.setText("\nrotationTimes: " + rotationTimes + "\nlastRotateStrength: " + lastRotateStrength);
                 if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2))
                         > rotateSTRENGTH && isRotate == 0) {
                     isRotate = 1;
+                    lastRotateStrength = (float) Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2));
 
                 }
                 if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2))
                         < rotateSTRENGTH &&  isRotate == 1) {
-                    rotationHold = rotationHold + 1;
-                    if (rotationHold > 15) {
+                    rotationHold = rotationHold + 1; //一个周期没有转动加速度，累加
+                    if (rotationHold > 10) { //多少个周期没有转动加速度
                         rotationHold = 0;
-                        isRotate = 0;
+                        isRotate = 0; //转动有加速度的标记归零
+                        gameVal_START = new float[4];
+                        beRotating = 0; //处于转动的标记归零
                         rotationTimes = rotationTimes + 1;
+
                     }
 
                 }
@@ -112,12 +113,44 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) { //这是游戏传感器的event
-                gameX = (float) Math.asin(event.values[0])*2;
-                gameY = (float) Math.asin(event.values[1])*2;
-                gameZ = (float) Math.asin(event.values[2])*2;
-                tvOutput1.setText("gameX: " + Math.toDegrees(gameX) + "\ngameY: "
-                        + Math.toDegrees(gameY) + "\ngameZ: " +  Math.toDegrees(gameZ));
+                float[] gameValues = event.values;
 
+                for (int gameId = 0; gameId < gameValues.length; gameId++) {
+                    gameValues[gameId] = (float) Math.toDegrees(Math.asin(event.values[gameId])*2);
+                }
+
+                tvOutput1.setText("gameX: " + gameValues[0] + "\ngameY: "
+                        + gameValues[1] + "\ngameZ: " +  gameValues[2]);
+                tvOutput2.setText("gameX_Start: " + gameVal_START[0] + "\ngameY_Start: "
+                        + gameVal_START[1] + "\ngameZ_Start: " +  gameVal_START[2]);
+
+
+                if (beRotating == 0){  //不处于旋转
+                    if (isRotate == 1) {//有转动的加速度且当前并不处于旋转
+                        gameVal_START = gameValues;
+                        beRotating = 1;
+                    }
+
+                } else { //处于旋转状态
+                    if (halfRotate == 0) {
+                        if ((Math.abs(180 - Math.abs(gameValues[0]-gameVal_START[0])) < ROTATE_ANGLE_THRESHOLD)
+                                ||(Math.abs(180 - Math.abs(gameValues[1]-gameVal_START[1])) < ROTATE_ANGLE_THRESHOLD)
+                                ||(Math.abs(180 - Math.abs(gameValues[2]-gameVal_START[2])) < ROTATE_ANGLE_THRESHOLD)){
+                            //误差范围设置20，这里判断是否转了半圈
+                            halfRotate = 1;
+                        }
+                    } else { //halfRotate为1时，代表已经转了半圈了
+                        if ((Math.abs(gameValues[0]-gameVal_START[0]) < ROTATE_ANGLE_THRESHOLD)
+                                ||(Math.abs(gameValues[1]-gameVal_START[1]) < ROTATE_ANGLE_THRESHOLD)
+                                ||(Math.abs(gameValues[2]-gameVal_START[2]) < ROTATE_ANGLE_THRESHOLD)) { //误差范围设置20，这里判断是否转了半圈
+                            halfRotate = 0; //转完半圈
+                            beRotating = 0;
+                            flipTimes = flipTimes + 1;
+                            tvOutTimes.setText("Flip Times\n" + flipTimes);
+                        }
+                    }
+
+                }
             }
 
 
