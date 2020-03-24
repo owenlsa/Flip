@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private float rotateY = 0;
     private float rotateZ = 0;
     private static float rotateSTRENGTH = 2;
-    private static float ROTATE_ANGLE_THRESHOLD = 20;
+    private static float ROTATE_ANGLE_THRESHOLD = 45;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,12 +122,15 @@ public class MainActivity extends AppCompatActivity {
                 tvOutput1.setText("gameX: " + gameValues[0] + "\ngameY: "
                         + gameValues[1] + "\ngameZ: " +  gameValues[2]);
                 tvOutput2.setText("gameX_Start: " + gameVal_START[0] + "\ngameY_Start: "
-                        + gameVal_START[1] + "\ngameZ_Start: " +  gameVal_START[2]);
+                        + gameVal_START[1] + "\ngameZ_Start: " +  gameVal_START[2]
+                        + "\n beRotating: " +beRotating + "\nisRotate: " + isRotate);
 
 
                 if (beRotating == 0){  //不处于旋转
                     if (isRotate == 1) {//有转动的加速度且当前并不处于旋转
-                        gameVal_START = gameValues;
+                        System.out.println("这里重新设了初值");
+                        System.arraycopy(gameValues, 0, gameVal_START, 0 ,3);
+//                        gameVal_START = gameValues;//数组不是这么赋值的
                         beRotating = 1;
                     }
 
@@ -142,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
                     } else { //halfRotate为1时，代表已经转了半圈了
                         if ((Math.abs(gameValues[0]-gameVal_START[0]) < ROTATE_ANGLE_THRESHOLD)
                                 ||(Math.abs(gameValues[1]-gameVal_START[1]) < ROTATE_ANGLE_THRESHOLD)
-                                ||(Math.abs(gameValues[2]-gameVal_START[2]) < ROTATE_ANGLE_THRESHOLD)) { //误差范围设置20，这里判断是否转了半圈
+                                ||(Math.abs(gameValues[2]-gameVal_START[2]) < ROTATE_ANGLE_THRESHOLD)) {
+                            //误差范围设置??，这里判断是否转了半圈
                             halfRotate = 0; //转完半圈
                             beRotating = 0;
                             flipTimes = flipTimes + 1;
