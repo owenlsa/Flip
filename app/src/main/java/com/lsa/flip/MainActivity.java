@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private float rotateZ = 0;
     private static float rotateSTRENGTH = 2;
     private static float ROTATE_ANGLE_THRESHOLD = 45;
-    private int flag = -1;
+    private int flag = -1; //获取当前翻转的是x y z哪个轴
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 rotateX = event.values[0];
                 rotateY = event.values[1];
                 rotateZ = event.values[2];
-                //tvOutput2.setText("\nrotationTimes: " + rotationTimes + "\nlastRotateStrength: " + lastRotateStrength);
                 if (Math.sqrt(Math.pow(rotateX,2)+Math.pow(rotateY,2)+Math.pow(rotateZ,2))
                         > rotateSTRENGTH && isRotate == 0) {
                     isRotate = 1;
@@ -139,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
                     if (halfRotate == 0) {
                         for(int i = 0; i < 3; i++) {
                             if ((Math.abs(180 - Math.abs(gameValues[i]-gameVal_START[i])) < ROTATE_ANGLE_THRESHOLD)){
-                                //误差范围设置20，这里判断是否转了半圈
-                                //save index
+                                //误差范围设置，这里判断是否转了半圈
+                                //获取当前转的是哪个轴
                                 halfRotate = 1;
                                 flag = i;
                                 break;
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
                     } else { //halfRotate为1时，代表已经转了半圈了
                         if ((Math.abs(gameValues[flag]-gameVal_START[flag]) < ROTATE_ANGLE_THRESHOLD)) {
-                            //误差范围设置??，这里判断是否转了半圈
+                            //误差范围设置，这里判断是否转了半圈
                             halfRotate = 0; //转完半圈
                             beRotating = 0;
                             flipTimes = flipTimes + 1;
@@ -188,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
     public void WriteSDFile(String context, String filename) {
 
         try {
-            //File sdPath =  Environment.getExternalStorageDirectory(); //安卓10 api不能用
             File sdPath =  getExternalFilesDir(null); //获取Android/data/com.lsa.flip路径
             if (!sdPath.exists()) {
                 Toast.makeText(this,"Directory not exist",Toast.LENGTH_SHORT).show();

@@ -41,7 +41,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        android:text="使用说明：\n在光线稳定的环境下，手持手机，将手机翻转（屏幕朝向地面的方向，或者朝光线暗的地方，或者屏幕扣向桌子上），然后再翻回来即可触发。\n\n原理：\n基于旋转速度和光线强度，在光线强度减弱且机身有旋转速度的时候触发，然后在光线强度恢复后，计入一次成功翻转。\n\nemmm效果有的时候不是那么好"
+        android:text="【陀螺仪版本】\n使用说明：\n手持手机稳定不动时，将手机任意方向旋转360度，即可触发。\n\n原理：\n基于陀螺仪的GAME_ROTATION_VECTOR的sensor api获取到三轴的旋转角度，在有旋转速度的时候记录当前的三轴旋转角度，当某一轴转了180度时标记一下，又转回了初始角度时触发翻转检测。"
         android:textAlignment="textStart"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
