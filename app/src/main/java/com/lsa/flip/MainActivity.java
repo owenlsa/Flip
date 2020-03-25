@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private float rotateZ = 0;
     private static float rotateSTRENGTH = 2;
     private static float ROTATE_ANGLE_THRESHOLD = 45;
+    private int flag = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,21 +137,24 @@ public class MainActivity extends AppCompatActivity {
 
                 } else { //处于旋转状态
                     if (halfRotate == 0) {
-                        if ((Math.abs(180 - Math.abs(gameValues[0]-gameVal_START[0])) < ROTATE_ANGLE_THRESHOLD)
-                                ||(Math.abs(180 - Math.abs(gameValues[1]-gameVal_START[1])) < ROTATE_ANGLE_THRESHOLD)
-                                ||(Math.abs(180 - Math.abs(gameValues[2]-gameVal_START[2])) < ROTATE_ANGLE_THRESHOLD)){
-                            //误差范围设置20，这里判断是否转了半圈
-                            halfRotate = 1;
+                        for(int i = 0; i < 3; i++) {
+                            if ((Math.abs(180 - Math.abs(gameValues[i]-gameVal_START[i])) < ROTATE_ANGLE_THRESHOLD)){
+                                //误差范围设置20，这里判断是否转了半圈
+                                //save index
+                                halfRotate = 1;
+                                flag = i;
+                                break;
+                            }
                         }
+
                     } else { //halfRotate为1时，代表已经转了半圈了
-                        if ((Math.abs(gameValues[0]-gameVal_START[0]) < ROTATE_ANGLE_THRESHOLD)
-                                ||(Math.abs(gameValues[1]-gameVal_START[1]) < ROTATE_ANGLE_THRESHOLD)
-                                ||(Math.abs(gameValues[2]-gameVal_START[2]) < ROTATE_ANGLE_THRESHOLD)) {
+                        if ((Math.abs(gameValues[flag]-gameVal_START[flag]) < ROTATE_ANGLE_THRESHOLD)) {
                             //误差范围设置??，这里判断是否转了半圈
                             halfRotate = 0; //转完半圈
                             beRotating = 0;
                             flipTimes = flipTimes + 1;
                             tvOutTimes.setText("Flip Times\n" + flipTimes);
+                            flag = -1;
                         }
                     }
 
